@@ -3,9 +3,7 @@ package main
 import (
 	"flag"
 	"log"
-	"./imageutils"
 )
-
 
 func main() {
 	server := flag.Bool("server", false, "Server mode")
@@ -17,7 +15,6 @@ func main() {
 	} else {
 		if *imagePathPtr == "" || *watermarkPathPtr == "" {
 			log.Panic("-image or -watermark paths did not present")
-			Panic
 		}
 	}
 }
