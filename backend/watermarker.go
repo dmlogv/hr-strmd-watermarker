@@ -14,7 +14,7 @@ func main() {
 		log.Print("Server mode on")
 	} else {
 		if *imagePathPtr == "" || *watermarkPathPtr == "" {
-			log.Panic("-image or -watermark paths did not present")
+			log.Fatal("-image or -watermark paths did not present")
 		}
 	}
 }
