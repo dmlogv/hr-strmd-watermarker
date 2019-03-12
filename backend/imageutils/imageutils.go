@@ -9,7 +9,8 @@ import (
 	"github.com/nfnt/resize"
 )
 
-func resizeImage(maxSize uint, decoded image.Image) image.Image {
+// ResizeImage fits decoded image to maxSize by a longest side
+func ResizeImage(maxSize uint, decoded image.Image) image.Image {
 	width := decoded.Bounds().Max.X
 	height := decoded.Bounds().Max.Y
 
