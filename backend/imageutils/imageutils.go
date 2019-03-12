@@ -4,12 +4,12 @@ import (
 	"errors"
 	"image"
 	"image/draw"
+	"image/jpeg"
 	"log"
 	"math"
 	"os"
 
 	// Imported for its initialization side-effects
-	_ "image/jpeg"
 	_ "image/png"
 
 	"github.com/nfnt/resize"
@@ -31,6 +31,18 @@ func OpenImage(filename string) (image.Image, error) {
 	}
 
 	return img, err
+}
+
+// WriteJpegImage encodes image as JPEG and write it to the file
+func WriteJpegImage(img image.Image, filename string) error {
+	f, err := os.Create(filename)
+	if err != nil {
+		log.Fatal(err)
+		return err
+	}
+	defer f.Close()
+
+	return jpeg.Encode(f, img, nil)
 }
 
 // ResizeImage fits decoded image to maxSize by a longest side
