@@ -4,7 +4,8 @@ FROM golang:1.12.0 AS go_build
 WORKDIR /app
 COPY backend .
 
-RUN CGO_ENABLED=0 go build -o watermarker .
+RUN CGO_ENABLED=0 go get ./... \
+    && CGO_ENABLED=0 go build -o watermarker .
 
 
 # Vue builder
