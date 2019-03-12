@@ -11,7 +11,8 @@ import (
 )
 
 const (
-	maxSize uint = 1024
+	rootURI string = "/watermark/"
+	maxSize uint   = 1024
 )
 
 func main() {
@@ -59,7 +60,7 @@ func MimeFileServer(fs http.Handler) func(http.ResponseWriter, *http.Request) {
 		log.Printf("%s %s %s", uri, ext, mimeType)
 
 		w.Header().Set("Content-Type", mimeType)
-		http.StripPrefix("/", fs).ServeHTTP(w, r)
+		http.StripPrefix(rootURI, fs).ServeHTTP(w, r)
 	}
 }
 
@@ -98,6 +99,7 @@ func process(w http.ResponseWriter, r *http.Request) error {
 
 	// Send response
 	w.Header().Set("Content-Type", "image/jpeg")
+	w.Header().Set("Content-Disposition", "attachment; filename=result.jpg")
 	w.WriteHeader(http.StatusOK)
 
 	if err = imageutils.WriteJpegImageWriter(result, w); err != nil {
@@ -112,7 +114,7 @@ func runServer() {
 	fs := http.FileServer(http.Dir("./dist"))
 	mimeFs := MimeFileServer(fs)
 
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+	http.HandleFunc(rootURI, func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
 		case http.MethodGet:
 			mimeFs(w, r)
