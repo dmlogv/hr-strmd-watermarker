@@ -4,7 +4,7 @@ FROM golang:1.12.0 AS go_build
 WORKDIR /app
 COPY backend .
 
-RUN CGO_ENABLED=0 go get ./... \
+RUN go get -d -v ./... \
     && CGO_ENABLED=0 go build -o watermarker .
 
 
