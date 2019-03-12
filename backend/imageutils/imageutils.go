@@ -73,6 +73,19 @@ func OverlayImage(base image.Image, overlay image.Image) image.Image {
 	return overlayed
 }
 
+// ResizeNWatermark resizes a base image to the maxSize,
+// then add a watermark fill from the tile
+func ResizeNWatermark(base, tile image.Image, maxSize uint) (image.Image, error) {
+	resized := ResizeImage(maxSize, base)
+	watermark, err := newTiledImage(tile, resized.Bounds(), cc)
+	if err != nil {
+		log.Fatal(err)
+		return nil, err
+	}
+
+	return OverlayImage(resized, watermark), nil
+}
+
 // ceilToOdd rounds x up to nearest odd number
 func ceilToOdd(x float64) int {
 	ceil := int(math.Ceil(x))

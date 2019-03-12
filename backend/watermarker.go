@@ -6,12 +6,19 @@ import (
 	"mime"
 	"net/http"
 	"path/filepath"
+
+	"./imageutils"
+)
+
+const (
+	maxSize uint = 1024
 )
 
 func main() {
 	server := flag.Bool("server", false, "Server mode")
 	imagePathPtr := flag.String("image", "", "Image file path")
 	watermarkPathPtr := flag.String("watermark", "", "Watermark file path")
+	outputPath := flag.String("output", "", "Output file path")
 
 	flag.Parse()
 
@@ -20,8 +27,20 @@ func main() {
 
 		runServer()
 	} else {
-		if *imagePathPtr == "" || *watermarkPathPtr == "" {
-			log.Fatal("-image or -watermark paths did not present")
+		if *imagePathPtr == "" || *watermarkPathPtr == "" || *outputPath == "" {
+			log.Fatal("-image, -watermark or -output paths did not present")
+		}
+
+		base, _ := imageutils.OpenImage(*imagePathPtr)
+		tile, _ := imageutils.OpenImage(*watermarkPathPtr)
+
+		result, err := imageutils.ResizeNWatermark(base, tile, maxSize)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		if err = imageutils.WriteJpegImage(result, *outputPath); err != nil {
+			log.Fatal(err)
 		}
 	}
 }
