@@ -63,11 +63,65 @@ func MimeFileServer(fs http.Handler) func(http.ResponseWriter, *http.Request) {
 	}
 }
 
+func process(w http.ResponseWriter, r *http.Request) error {
+	// Get multipart form readers
+	baseReader, _, err := r.FormFile("imageFile")
+	if err != nil {
+		log.Printf("imageFile opening error: %s", err)
+		return err
+	}
+	tileReader, _, err := r.FormFile("watermarkFile")
+	if err != nil {
+		log.Printf("watermarkFile opening error: %s", err)
+		return err
+	}
+
+	// Extract images
+	base, err := imageutils.OpenImageReader(baseReader)
+	if err != nil {
+		log.Printf("Error on decoding base image: %s", err)
+		return err
+	}
+	tile, err := imageutils.OpenImageReader(tileReader)
+	if err != nil {
+		log.Printf("Error on decoding tile image: %s", err)
+		return err
+	}
+
+	// Process images
+	result, err := imageutils.ResizeNWatermark(base, tile, maxSize)
+	if err != nil {
+		log.Printf("Error on image processing: %s", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return err
+	}
+
+	// Send response
+	w.Header().Set("Content-Type", "image/jpeg")
+	w.WriteHeader(http.StatusOK)
+
+	if err = imageutils.WriteJpegImageWriter(result, w); err != nil {
+		log.Printf("Error on sending image back: %s", err)
+		return err
+	}
+
+	return nil
+}
+
 func runServer() {
 	fs := http.FileServer(http.Dir("./dist"))
 	mimeFs := MimeFileServer(fs)
 
-	http.HandleFunc("/", mimeFs)
+	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		switch r.Method {
+		case http.MethodGet:
+			mimeFs(w, r)
+		case http.MethodPost:
+			process(w, r)
+		default:
+			log.Printf("Unsupported method: %s", r.Method)
+		}
+	})
 
 	http.ListenAndServe(":3210", nil)
 }

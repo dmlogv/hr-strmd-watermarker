@@ -5,6 +5,7 @@ import (
 	"image"
 	"image/draw"
 	"image/jpeg"
+	"io"
 	"log"
 	"math"
 	"os"
@@ -24,7 +25,12 @@ func OpenImage(filename string) (image.Image, error) {
 	}
 	defer f.Close()
 
-	img, _, err := image.Decode(f)
+	return OpenImageReader(f)
+}
+
+// OpenImageReader opens and decode image from io.Reader
+func OpenImageReader(r io.Reader) (image.Image, error) {
+	img, _, err := image.Decode(r)
 	if err != nil {
 		log.Fatal(err)
 		return nil, err
@@ -42,7 +48,12 @@ func WriteJpegImage(img image.Image, filename string) error {
 	}
 	defer f.Close()
 
-	return jpeg.Encode(f, img, nil)
+	return WriteJpegImageWriter(img, f)
+}
+
+// WriteJpegImageWriter encodes image as JPEG and send it to io.Writer
+func WriteJpegImageWriter(img image.Image, w io.Writer) error {
+	return jpeg.Encode(w, img, nil)
 }
 
 // ResizeImage fits decoded image to maxSize by a longest side
