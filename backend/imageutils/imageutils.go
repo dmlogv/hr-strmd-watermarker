@@ -4,10 +4,34 @@ import (
 	"errors"
 	"image"
 	"image/draw"
+	"log"
 	"math"
+	"os"
+
+	// Imported for its initialization side-effects
+	_ "image/jpeg"
+	_ "image/png"
 
 	"github.com/nfnt/resize"
 )
+
+// OpenImage opens and decode image file
+func OpenImage(filename string) (image.Image, error) {
+	f, err := os.Open(filename)
+	if err != nil {
+		log.Fatal(err)
+		return nil, err
+	}
+	defer f.Close()
+
+	img, _, err := image.Decode(f)
+	if err != nil {
+		log.Fatal(err)
+		return nil, err
+	}
+
+	return img, err
+}
 
 // ResizeImage fits decoded image to maxSize by a longest side
 func ResizeImage(maxSize uint, decoded image.Image) image.Image {
