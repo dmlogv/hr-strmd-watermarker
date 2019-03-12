@@ -13,6 +13,8 @@ import (
 const (
 	rootURI string = "/watermark/"
 	maxSize uint   = 1024
+	folder  string = "./dist"
+	host    string = ":3210"
 )
 
 func main() {
@@ -111,7 +113,7 @@ func process(w http.ResponseWriter, r *http.Request) error {
 }
 
 func runServer() {
-	fs := http.FileServer(http.Dir("./dist"))
+	fs := http.FileServer(http.Dir(folder))
 	mimeFs := MimeFileServer(fs)
 
 	http.HandleFunc(rootURI, func(w http.ResponseWriter, r *http.Request) {
@@ -125,5 +127,5 @@ func runServer() {
 		}
 	})
 
-	http.ListenAndServe(":3210", nil)
+	http.ListenAndServe(host, nil)
 }
