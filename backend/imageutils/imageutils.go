@@ -31,6 +31,7 @@ func OverlayImage(base image.Image, overlay image.Image) image.Image {
 
 	overlayed := image.NewRGBA(baseBounds)
 	draw.Draw(overlayed, baseBounds, base, image.ZP, draw.Src)
+	draw.Draw(overlayed, baseBounds, overlay, image.ZP, draw.Over)
 
 	return overlayed
 }
