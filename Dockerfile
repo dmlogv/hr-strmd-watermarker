@@ -4,7 +4,7 @@ FROM golang:1.12.0 AS go_build
 WORKDIR /app
 COPY backend .
 
-RUN go build -o watermarker .
+RUN CGO_ENABLED=0 go build -o watermarker .
 
 
 # Vue builder
@@ -22,8 +22,9 @@ FROM scratch
 
 WORKDIR /app
 COPY --from=go_build   /app/watermarker .
-COPY --from=node_build /app/frontend .
+COPY --from=node_build /app .
+
 
 EXPOSE 3210:3210
-CMD ["/app/watermarker -server 3210"]
+CMD ["/app/watermarker", "-server"]
 
