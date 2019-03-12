@@ -129,15 +129,15 @@ const (
 
 // newTiledImage returns a new image tiled with img in b bounds
 func newTiledImage(img image.Image, b image.Rectangle, a align) (image.Image, error) {
-	tiled := image.NewRGBA(b)
-	w := img.Bounds().Dx()
-	h := img.Bounds().Dy()
+	imgRect := img.Bounds()
+	w := imgRect.Dx()
+	h := imgRect.Dy()
 
 	if a != cc {
 		return nil, errors.New("Alignments except align.cc are not implemented")
 	}
 
-	tiled = image.NewRGBA(b)
+	tiled := image.NewRGBA(b)
 
 	// Number of images on the axes
 	xNum := tileNum(b.Dx(), w)
@@ -150,7 +150,8 @@ func newTiledImage(img image.Image, b image.Rectangle, a align) (image.Image, er
 	for kx := 0; kx < xNum; kx++ {
 		for ky := 0; ky < yNum; ky++ {
 			p := image.Point{x + kx*w, y + ky*h}
-			draw.Draw(tiled, img.Bounds(), img, p, draw.Over)
+			destRect := image.Rectangle{p, p.Add(imgRect.Size())}
+			draw.Draw(tiled, destRect, img, imgRect.Min, draw.Over)
 		}
 	}
 
